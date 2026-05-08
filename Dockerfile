@@ -87,7 +87,7 @@ SHELL ["conda", "run", "--no-capture-output", "-n", "MonoGS", "/bin/bash", "-c"]
 # -----------------------------------------------------------------------------
 # PyTorch 2.0.1 + CUDA 11.8 (matches the cuda:11.8.0-devel base, sm_89-capable)
 # -----------------------------------------------------------------------------
-RUN pip install --upgrade pip \
+RUN pip install --upgrade pip setuptools wheel \
     && pip install \
         torch==2.0.1+cu118 \
         torchvision==0.15.2+cu118 \
@@ -130,9 +130,14 @@ WORKDIR /workspace/MonoGS
 
 # Copy only the submodules first so a code edit doesn't invalidate the
 # (slow) CUDA-extension build cache.
+#
+# --no-build-isolation: both submodules' setup.py do `import torch` at
+# module level, but PEP 517 build isolation creates a fresh venv with no
+# torch installed -> ModuleNotFoundError. Disabling isolation makes the
+# build use the env's already-installed torch.
 COPY submodules /workspace/MonoGS/submodules
-RUN pip install ./submodules/simple-knn \
-    && pip install ./submodules/diff-gaussian-rasterization
+RUN pip install --no-build-isolation ./submodules/simple-knn \
+    && pip install --no-build-isolation ./submodules/diff-gaussian-rasterization
 
 # Now copy the rest of the project.
 COPY . /workspace/MonoGS
