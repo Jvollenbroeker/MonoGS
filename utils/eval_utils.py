@@ -109,7 +109,11 @@ def eval_ate(frames, kf_ids, save_dir, iterations, final=False, monocular=False)
         label=label_evo,
         monocular=monocular,
     )
-    wandb.log({"frame_idx": latest_frame_idx, "ate": ate})
+    log_dict = {"frame_idx": latest_frame_idx, "ate": ate}
+    plot_path = os.path.join(plot_dir, f"evo_2dplot_{label_evo}.png")
+    if os.path.exists(plot_path):
+        log_dict["trajectory"] = wandb.Image(plot_path)
+    wandb.log(log_dict)
     return ate
 
 
@@ -177,6 +181,25 @@ def eval_rendering(
         open(os.path.join(psnr_save_dir, "final_result.json"), "w", encoding="utf-8"),
         indent=4,
     )
+
+    if len(img_pred) > 0:
+        n_samples = min(8, len(img_pred))
+        sample_idx = np.linspace(0, len(img_pred) - 1, n_samples).astype(int)
+        wandb.log(
+            {
+                f"render/{iteration}/pred": [
+                    wandb.Image(img_pred[i], caption=f"frame {saved_frame_idx[i]}")
+                    for i in sample_idx
+                ],
+                f"render/{iteration}/gt": [
+                    wandb.Image(img_gt[i], caption=f"frame {saved_frame_idx[i]}")
+                    for i in sample_idx
+                ],
+                f"render/{iteration}/mean_psnr": output["mean_psnr"],
+                f"render/{iteration}/mean_ssim": output["mean_ssim"],
+                f"render/{iteration}/mean_lpips": output["mean_lpips"],
+            }
+        )
     return output
 
 
