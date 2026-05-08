@@ -1,0 +1,15 @@
+.git
+.gitmodules
+.claude
+datasets
+results
+wandb
+*.pyc
+__pycache__
+.venv
+venv
+*.egg-info
+build
+dist
+.DS_Store
+media
