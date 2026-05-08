@@ -137,7 +137,16 @@ RUN pip install "numpy==1.26.4" \
 # Add other archs space-separated if you also build for other GPUs.
 # -----------------------------------------------------------------------------
 ENV TORCH_CUDA_ARCH_LIST="8.9" \
-    FORCE_CUDA=1
+    FORCE_CUDA=1 \
+    MPLBACKEND=Agg
+
+# evo (trajectory eval) calls `matplotlib.use(SETTINGS.plot_backend)` at
+# import time, which overrides MPLBACKEND. Its default plot_backend is
+# TkAgg, which fails inside a headless container. Bake plot_backend=Agg
+# into evo's user settings during the build so the eval subprocess can
+# render the trajectory plot to PNG instead of crashing.
+RUN evo_config set plot_backend Agg \
+    && evo_config show | grep plot_backend
 
 WORKDIR /workspace/MonoGS
 
