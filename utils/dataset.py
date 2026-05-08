@@ -45,6 +45,48 @@ class ReplicaParser:
         self.frames = frames
 
 
+class ScannetppParser:
+    """Reads the layout produced by scripts/process_scannetpp.py:
+        <input_folder>/rgb/frame_*.jpg
+        <input_folder>/depth/frame_*.png   (uint16 mm)
+        <input_folder>/traj.txt            one row-major 4x4 w2c (OpenCV) per line
+    """
+
+    def __init__(self, input_folder):
+        self.input_folder = input_folder
+        self.color_paths = sorted(glob.glob(f"{self.input_folder}/rgb/frame_*.jpg"))
+        self.depth_paths = sorted(glob.glob(f"{self.input_folder}/depth/frame_*.png"))
+        self.n_img = len(self.color_paths)
+        if self.n_img == 0:
+            raise RuntimeError(
+                f"No frames in {input_folder}/rgb. Did you run "
+                f"scripts/process_scannetpp.py on the raw ScanNet++ scene?"
+            )
+        self.load_poses(f"{self.input_folder}/traj.txt")
+
+    def load_poses(self, path):
+        self.poses = []
+        with open(path, "r") as f:
+            lines = [ln for ln in f.readlines() if ln.strip()]
+        if len(lines) != self.n_img:
+            raise RuntimeError(
+                f"traj.txt has {len(lines)} poses but {self.n_img} RGB frames"
+            )
+        frames = []
+        for i, line in enumerate(lines):
+            pose = np.array(
+                list(map(float, line.split())), dtype=np.float64
+            ).reshape(4, 4)
+            # traj.txt is already w2c in OpenCV from process_scannetpp.py.
+            self.poses.append(pose)
+            frames.append({
+                "file_path": self.color_paths[i],
+                "depth_path": self.depth_paths[i] if i < len(self.depth_paths) else None,
+                "transform_matrix": pose.tolist(),
+            })
+        self.frames = frames
+
+
 class TUMParser:
     def __init__(self, input_folder):
         self.input_folder = input_folder
@@ -415,6 +457,17 @@ class ReplicaDataset(MonocularDataset):
         self.poses = parser.poses
 
 
+class ScannetppDataset(MonocularDataset):
+    def __init__(self, args, path, config):
+        super().__init__(args, path, config)
+        dataset_path = config["Dataset"]["dataset_path"]
+        parser = ScannetppParser(dataset_path)
+        self.num_imgs = parser.n_img
+        self.color_paths = parser.color_paths
+        self.depth_paths = parser.depth_paths
+        self.poses = parser.poses
+
+
 class EurocDataset(StereoDataset):
     def __init__(self, args, path, config):
         super().__init__(args, path, config)
@@ -528,5 +581,7 @@ def load_dataset(args, path, config):
         return EurocDataset(args, path, config)
     elif config["Dataset"]["type"] == "realsense":
         return RealsenseDataset(args, path, config)
+    elif config["Dataset"]["type"] == "scannetpp":
+        return ScannetppDataset(args, path, config)
     else:
         raise ValueError("Unknown dataset type")
