@@ -110,8 +110,13 @@ RUN pip install --upgrade "pip<24" "setuptools==69.5.1" "wheel" \
 # is an ABI break — without this pin you get
 # "AttributeError: _ARRAY_API not found" / "numpy.core.multiarray failed
 # to import" on every native module that touches arrays.
+#
+# matplotlib is pinned to 3.6.x: evo 1.11.0's traj_colormap calls
+# fig.colorbar(mappable) without ax=. matplotlib 3.7 made that a hard
+# error ("Unable to determine Axes to steal space for Colorbar"); 3.6.x
+# still does the implicit plt.gca() lookup that evo relies on.
 # -----------------------------------------------------------------------------
-RUN pip install "numpy==1.26.4" \
+RUN pip install "numpy==1.26.4" "matplotlib==3.6.3" \
     && pip install \
         plyfile==0.8.1 \
         tqdm \
@@ -129,7 +134,7 @@ RUN pip install "numpy==1.26.4" \
         lpips \
         rich \
         ruff \
-    && python -c "import numpy, sys; assert numpy.__version__.startswith('1.'), numpy.__version__; print('numpy', numpy.__version__, 'OK')"
+    && python -c "import numpy, matplotlib; assert numpy.__version__.startswith('1.'), numpy.__version__; assert matplotlib.__version__.startswith('3.6.'), matplotlib.__version__; print('numpy', numpy.__version__, 'matplotlib', matplotlib.__version__, 'OK')"
 
 # -----------------------------------------------------------------------------
 # Build the CUDA submodules with the L4 architecture baked in.
