@@ -87,7 +87,12 @@ SHELL ["conda", "run", "--no-capture-output", "-n", "MonoGS", "/bin/bash", "-c"]
 # -----------------------------------------------------------------------------
 # PyTorch 2.0.1 + CUDA 11.8 (matches the cuda:11.8.0-devel base, sm_89-capable)
 # -----------------------------------------------------------------------------
-RUN pip install --upgrade pip setuptools wheel \
+#
+# setuptools is pinned to <70: PyTorch 2.0.1's torch/utils/cpp_extension.py
+# imports `from pkg_resources import packaging`, which setuptools 70+
+# removed. Without this pin the submodule build fails with
+# "ModuleNotFoundError: No module named 'pkg_resources'".
+RUN pip install --upgrade "pip<24" "setuptools==69.5.1" "wheel" \
     && pip install \
         torch==2.0.1+cu118 \
         torchvision==0.15.2+cu118 \
