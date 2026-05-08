@@ -104,8 +104,15 @@ RUN pip install --upgrade "pip<24" "setuptools==69.5.1" "wheel" \
 # that are pure-python on PyPI). cudatoolkit is *not* needed: PyTorch ships
 # its own runtime libs and the system CUDA toolkit (from the base image)
 # provides nvcc for the submodules below.
+#
+# numpy is pinned to <2: PyTorch 2.0.1, OpenCV 4.8.1, Open3D 0.17 and the
+# CUDA submodules below are all compiled against NumPy 1.x ABI. NumPy 2.0
+# is an ABI break — without this pin you get
+# "AttributeError: _ARRAY_API not found" / "numpy.core.multiarray failed
+# to import" on every native module that touches arrays.
 # -----------------------------------------------------------------------------
-RUN pip install \
+RUN pip install "numpy==1.26.4" \
+    && pip install \
         plyfile==0.8.1 \
         tqdm \
         opencv-python==4.8.1.78 \
@@ -121,7 +128,8 @@ RUN pip install \
         wandb \
         lpips \
         rich \
-        ruff
+        ruff \
+    && python -c "import numpy, sys; assert numpy.__version__.startswith('1.'), numpy.__version__; print('numpy', numpy.__version__, 'OK')"
 
 # -----------------------------------------------------------------------------
 # Build the CUDA submodules with the L4 architecture baked in.
