@@ -54,9 +54,9 @@ Training:
   edge_threshold: 4
   rgb_boundary_threshold: 0.01
 
-  kf_translation: 0.04
-  kf_min_translation: 0.02
-  kf_overlap: 0.95
+  kf_translation: 0.01
+  kf_min_translation: 0.005
+  kf_overlap: 0.9
   prune_mode: 'slam'
   single_thread: True
   spherical_harmonics: False
