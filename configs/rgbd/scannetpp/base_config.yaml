@@ -54,8 +54,8 @@ Training:
   edge_threshold: 4
   rgb_boundary_threshold: 0.01
 
-  kf_translation: 0.06
-  kf_min_translation: 0.03
+  kf_translation: 0.02
+  kf_min_translation: 0.01
   kf_overlap: 0.9
   prune_mode: 'slam'
   single_thread: True
