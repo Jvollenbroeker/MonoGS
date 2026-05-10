@@ -1,16 +1,40 @@
+# Python
 *.pyc
-.vscode
-output
-build
+*.pyo
+__pycache__/
+*.egg-info/
+*.so
+*.dist-info/
+
+# Build artefacts
+build/
+dist/
+output/
 diff_rasterization/diff_rast.egg-info
-**.egg-info
-**.so
 diff_rasterization/dist
 
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Claude Code internal files
+.claude/
+
+# Dataset files (large raw data — never commit)
+datasets/
+
+# Processed outputs
+result*/
+results/
+wandb/
 cameras.json
 *.ply
 *.mp4
-datasets
-wandb
+*.mkv
+*.bin
 
-result*
+# Submodule build artefacts (compiled CUDA extensions)
+gaussian_splatting/submodules/**/build/
+gaussian_splatting/submodules/**/*.egg-info/
+gaussian_splatting/submodules/**/*.so

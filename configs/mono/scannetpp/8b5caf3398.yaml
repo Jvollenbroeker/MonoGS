@@ -1,0 +1,4 @@
+inherit_from: "configs/mono/scannetpp/base_config.yaml"
+
+Dataset:
+  dataset_path: "datasets/scannet/8b5caf3398/processed"

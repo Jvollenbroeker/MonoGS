@@ -127,6 +127,7 @@ RUN pip install "numpy==1.26.4" "matplotlib==3.6.3" \
         open3d==0.17.0 \
         torchmetrics \
         imgviz \
+        lz4 \
         PyOpenGL \
         glfw \
         PyGLM \
