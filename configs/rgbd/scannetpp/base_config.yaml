@@ -50,8 +50,8 @@ Training:
   size_threshold: 20
   kf_interval: 4
   window_size: 10
-  pose_window: 5
-  edge_threshold: 4
+  pose_window: 0
+  edge_threshold: 1.1
   rgb_boundary_threshold: 0.01
 
   kf_translation: 0.02
