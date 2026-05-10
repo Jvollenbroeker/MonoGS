@@ -18,12 +18,12 @@ Dataset:
   point_size: 0.05
   type: 'scannetpp'
   Calibration:
-    fx: 713.97175
-    fy: 713.97175
-    cx: 476.98835
-    cy: 361.803925
-    # OPENCV plumb-bob distortion from nerfstudio/transforms.json
-    # (constant lens calibration shared across frames).
+    # COLMAP bundle-adjusted intrinsics (cameras.txt) at 0.5 × scale.
+    fx: 719.04000
+    fy: 720.06000
+    cx: 479.11950
+    cy: 360.55000
+    # OPENCV distortion from COLMAP cameras.txt.
     k1: 0.0669857
     k2: -0.0778138
     p1: -0.00018165
